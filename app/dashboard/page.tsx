@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Sidebar from "@/components/Sidebar";
 
 type Signal = {
   symbol: string;
@@ -59,23 +60,7 @@ function ConfidenceRing({ value, signal }: { value: number; signal: "BUY" | "SEL
   );
 }
 
-// Inline SVG icons (no external dep for nav)
-const icons = {
-  grid:     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>,
-  zap:      <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>,
-  star:     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
-  book:     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
-  settings: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
-  refresh:  <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
-};
-
-const NAV_ITEMS = [
-  { icon: icons.grid,     label: "Overview",   active: false },
-  { icon: icons.zap,      label: "Signals",    active: true  },
-  { icon: icons.star,     label: "Watchlist",  active: false },
-  { icon: icons.book,     label: "Learn",      active: false },
-  { icon: icons.settings, label: "Settings",   active: false },
-];
+const refreshIcon = <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>;
 
 function SignalCard({ s }: { s: Signal }) {
   const style = SIG[s.signal];
@@ -241,120 +226,7 @@ export default function Dashboard() {
         color: "var(--t1)",
       }}
     >
-      {/* ── Sidebar ──────────────────────────────── */}
-      <aside
-        style={{
-          width: 220,
-          flexShrink: 0,
-          background: "var(--surface)",
-          borderRight: "1px solid var(--border)",
-          display: "flex",
-          flexDirection: "column",
-          padding: "24px 16px",
-          position: "sticky",
-          top: 0,
-          height: "100vh",
-          overflow: "auto",
-        }}
-      >
-        {/* Logo */}
-        <Link
-          href="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            textDecoration: "none",
-            marginBottom: 36,
-            padding: "0 8px",
-          }}
-        >
-          <span style={{ fontSize: 20 }}>🏝️</span>
-          <span
-            style={{
-              fontFamily: "var(--font-playfair), Georgia, serif",
-              fontSize: 16,
-              fontWeight: 700,
-              color: "var(--t1)",
-            }}
-          >
-            Island Signals
-          </span>
-        </Link>
-
-        {/* Nav items */}
-        <nav style={{ flex: 1 }}>
-          {NAV_ITEMS.map((item) => (
-            <div
-              key={item.label}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "10px 12px",
-                borderRadius: 10,
-                marginBottom: 4,
-                cursor: "pointer",
-                background: item.active ? "var(--accent-dim)" : "transparent",
-                color: item.active ? "var(--accent)" : "var(--t3)",
-                fontSize: 14,
-                fontWeight: item.active ? 600 : 400,
-                border: item.active ? "1px solid rgba(91,138,245,0.2)" : "1px solid transparent",
-                transition: "all 0.15s",
-              }}
-              onMouseEnter={(e) => {
-                if (!item.active) {
-                  (e.currentTarget as HTMLDivElement).style.color = "var(--t1)";
-                  (e.currentTarget as HTMLDivElement).style.background = "var(--elevated)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!item.active) {
-                  (e.currentTarget as HTMLDivElement).style.color = "var(--t3)";
-                  (e.currentTarget as HTMLDivElement).style.background = "transparent";
-                }
-              }}
-            >
-              {item.icon}
-              {item.label}
-            </div>
-          ))}
-        </nav>
-
-        {/* Upgrade card — inspired by image 4 */}
-        <div
-          style={{
-            background: "linear-gradient(135deg, rgba(91,138,245,0.15), rgba(124,58,237,0.15))",
-            border: "1px solid rgba(91,138,245,0.25)",
-            borderRadius: 14,
-            padding: "20px",
-            marginTop: 16,
-          }}
-        >
-          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", letterSpacing: "0.08em", marginBottom: 8 }}>
-            PRO SIGNALS
-          </div>
-          <p style={{ fontSize: 13, color: "var(--t2)", lineHeight: 1.5, marginBottom: 14 }}>
-            Unlock real-time signals & deep AI analysis.
-          </p>
-          <button
-            style={{
-              width: "100%",
-              padding: "9px",
-              background: "var(--accent)",
-              color: "#fff",
-              border: "none",
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: "pointer",
-              boxShadow: "0 4px 16px rgba(91,138,245,0.3)",
-            }}
-          >
-            Upgrade to Pro
-          </button>
-        </div>
-      </aside>
+      <Sidebar />
 
       {/* ── Main content ─────────────────────────── */}
       <main style={{ flex: 1, padding: "32px 40px", overflow: "auto" }}>
@@ -405,7 +277,7 @@ export default function Dashboard() {
               (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)";
             }}
           >
-            {icons.refresh}
+            {refreshIcon}
             Refresh
           </button>
         </div>
